@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC  
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+   
+<mapper namespace="com.fh.mapper.planytdj.WbPlanRegisterMapper">
+
+	<sql id="searcheWbPlanRegister">
+		<where>
+			<if test="wbPlanRegister.status != null and wbPlanRegister.status != ''">
+				and status=#{wbPlanRegister.status}
+			</if>
+			<if test="wbPlanRegister.issueName != null and wbPlanRegister.issueName != ''">
+				and  issueName like concat('%',#{wbPlanRegister.issueName},'%')
+			</if>
+			<if test="wbPlanRegister.dutyUnit != null and wbPlanRegister.dutyUnit != ''">
+				and dutyUnit=#{wbPlanRegister.dutyUnit}
+			</if>
+			<if test="wbPlanRegister.startTime != null">
+			and startTime &gt;= #{wbPlanRegister.startTime}
+			</if>
+			<if test="wbPlanRegister.endTime != null">
+			and endTime &lt;= #{wbPlanRegister.endTime}
+			</if>
+		</where>
+	</sql>
+
+		<select id="findCount" resultType="java.lang.Long">
+			select count(id) from hy_plan_ytdj
+			<include refid="searcheWbPlanRegister"></include>
+		</select>
+
+		<select id="findWbPlanRegisterList" resultType="com.fh.bean.planytdj.WbPlanRegister">
+		select id,issueName,dutyUnit,status,startTime from hy_plan_ytdj
+			<include refid="searcheWbPlanRegister"></include>
+			limit #{page.start},#{page.length}
+	   	</select>
+
+</mapper>
