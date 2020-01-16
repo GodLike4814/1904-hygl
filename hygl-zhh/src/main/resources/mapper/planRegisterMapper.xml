@@ -19,5 +19,13 @@
 		 values (#{issueName},#{dutyUnit},#{status},#{nsMeeting},#{startTime},#{endTime},#{remark})
 	</insert>
 
+	<select id="findAllPlanRegister" resultType="com.fh.bean.planytdj.PlanRegister">
+		select * from hy_plan_ytdj
+		limit #{page.start},#{page.length}
+	</select>
+
+	<select id="findCountAll" resultType="java.lang.Long">
+		select count(id) from hy_plan_ytdj
+	</select>
 
 </mapper>

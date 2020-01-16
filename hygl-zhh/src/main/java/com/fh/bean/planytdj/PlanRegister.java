@@ -13,6 +13,7 @@ import java.util.Date;
  **/
 public class PlanRegister {
 
+    private Integer id;
     //议题名称
     private String issueName;
     //责任单位
@@ -24,6 +25,8 @@ public class PlanRegister {
     //
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date startTime;
+
+    private String timePlan;
 
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date endTime;
@@ -84,6 +87,14 @@ public class PlanRegister {
         return remark;
     }
 
+    public String getTimePlan() {
+        return timePlan;
+    }
+
+    public void setTimePlan(String timePlan) {
+        this.timePlan = timePlan;
+    }
+
     public void setRemark(String remark) {
         this.remark = remark;
     }
@@ -94,5 +105,13 @@ public class PlanRegister {
 
     public void setMaterials(String materials) {
         this.materials = materials;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
