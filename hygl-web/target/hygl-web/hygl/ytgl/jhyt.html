@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>计划议题登记</title>
+
+    <link rel="stylesheet" href="../../commons/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../commons/fileinput/css/fileinput.min.css">
+
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script src="../../commons/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../commons/fileinput/js/fileinput.min.js"></script>
+    <script src="../../commons/fileinput/js/locales/zh.js"></script>
+    <script src="../../commons/My97DatePicker/WdatePicker.js"></script>
+    <script src="../../commons/bootbox/bootbox.min.js"></script>
+</head>
+<body>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        计划议题登记
+    </div>
+    <div class="panel-body">
+        <div id="addGoodsDiv">
+            <form class="form-horizontal" id="addGoodsForm">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">议题名称</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="issueName" name="issueName">
+                        <input type="hidden" class="form-control" id="id" name="id">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">相关材料</label>
+                    <div style="height: 300px">
+                        <div class="col-sm-5">
+                            <input id="upphoto" type="file" name="myfile" class="form-control">
+                            <input type="hidden" name="goodsPath" id="goodsPath">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">备注</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="remark" name="remark">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">责任单位</label>
+                    <div class="col-sm-5">
+                        <!--<input type="text" class="form-control" id="dutyUnit" name="dutyUnit">-->
+                        <select class="form-control" id="dutyUnit" name="dutyUnit">
+                            <option value="-1">---请选择---</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">时间安排</label>
+                    <div class="input-group col-sm-5">
+                        <input type="text" class="form-control" id="startTime" name="startTime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})">
+                        <div class="input-group-addon">
+                            <span>至</span>
+                        </div>
+                        <input type="text" class="form-control" id="endTime" name="endTime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">议题状态</label>
+                    <div class="col-sm-5">
+                        <select class="form-control" id="status" name="status">
+                            <option value="-1">---请选择---</option>
+                            <option value="3">---待上会---</option>
+                            <option value="1">---已上会---</option>
+                            <option value="2">---不上会---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">拟上会议</label>
+                    <div class="col-sm-5">
+                        <select class="form-control" id="nsMeeting" name="nsMeeting">
+                            <option value="-1">---请选择---</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div style="text-align: center">
+                    <button type="button" class="btn btn-primary" onclick="addIssue();">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>保存
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        //initcategory(1);
+        initbrand();
+        initDutyUnit();
+        goodsfileInput();
+    })
+
+    //新增计划议题
+    function addIssue() {
+
+        var param = {};
+        param.issueName = $("#issueName").val();
+        //相关资料
+       // param.goodsPath = $("#goodsPath").val();
+        param.status = $("#status").val();
+        param.remark = $("#remark").val();
+        param.dutyUnit = $("#dutyUnit").val();
+        param.startTime = $("#startTime").val();
+        param.endTime = $("#endTime").val();
+        // var sel = $("select[name='selectTe']");
+        // param.category1 = sel.length >= 1 ? sel[0].value : "";
+        // param.category2 = sel.length >= 2 ? sel[1].value : "";
+        // param.category3 = sel.length >= 3 ? sel[2].value : "";
+        // var strArr = $("input[name='cateName']");
+        // if (strArr.length == 1) {
+        //     param.str = $("input[name='cateName']")[0].value;
+        // } else if (strArr.length == 2) {
+        //     param.str = $("input[name='cateName']")[0].value + "-" + $("input[name='cateName']")[1].value;
+        // } else if (strArr.length == 3) {
+        //     param.str = $("input[name='cateName']")[0].value + "-" + $("input[name='cateName']")[1].value + "-" + $("input[name='cateName']")[2].value;
+        // }
+        param.nsMeeting = $("#nsMeeting").val();
+            $.ajax({
+                type: "post",
+                url: "http://localhost:8055/planRegister/add",
+                dataType:"json",
+                data: param,
+                success: function (result) {
+                    if (result.code == 200) {
+                        location.href = "wbjhyt.html";
+                    }
+                }
+            })
+
+    }
+
+    //动态拼接拟上会议下拉
+    function initbrand() {
+        $.ajax({
+            type: "post",
+            async: false,
+            url: "http://localhost:8055/planRegister/findNsMeeting",
+            success: function (result) {
+                if (result.code == 200) {
+                    var arr = result.data;
+                    for (var i = 0; i < arr.length; i++) {
+                        $("#nsMeeting").append('<option value="' + arr[i].id + '">' + arr[i].meetName + '</option>')
+                    }
+                }
+            }
+        })
+    }
+    //动态拼接责任单位下拉
+    function initDutyUnit() {
+        $.ajax({
+            type: "post",
+            async: false,
+            url: "http://localhost:8055/planRegister/findDutyUnit",
+            success: function (result) {
+                if (result.code == 200) {
+                    var arr = result.data;
+                    for (var i = 0; i < arr.length; i++) {
+                        $("#dutyUnit").append('<option value="' + arr[i].id + '">' + arr[i].unitName + '</option>')
+                    }
+                }
+            }
+        })
+    }
+
+    //商品图片上传
+    function goodsfileInput() {
+        $("#upphoto").fileinput({
+            language: 'zh', //设置语言
+            uploadUrl: "http://localhost:8055/planRegister/uploadFile",
+            allowedFileExtensions: ['jpg', 'gif', 'png', 'bmp', 'doc'],//接收的文件后缀
+            uploadAsync: true, //默认异步上传
+            showUpload: true, //是否显示上传按钮
+            showPreview: true, //是否显示预览
+            browseClass: "btn btn-primary", //按钮样式
+            dropZoneEnabled: true,//是否显示拖拽区域
+            maxFileCount: 3, //表示允许同时上传的最大文件个数
+            enctype: 'multipart/form-data',
+            msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！"
+        });
+        $("#upphoto").on("fileuploaded", function (event, data, previewId, index) {
+            if (data.response.code == 200) {
+                $("#goodsPath").val(data.response.data);
+            }
+        });
+    }
+
+    //动态拼接分类的下拉框（无限极联动）
+    function initcategory(id, obj) {
+        $.ajax({
+            type: "post",
+            url: "<%=request.getContextPath()%>/category/querycateByPid.jhtml?id=" + id,
+            success: function (result) {
+                if (result.code == 200) {
+                    if (obj) {
+                        $(obj).parent().nextAll().remove();
+                        //获取选中的下标
+                        var selectedIndex = obj.selectedIndex;
+                        //给下拉框前的input框赋值
+                        $(obj).prev().val(obj.options[selectedIndex].text);
+                    }
+                    var res = result.data;
+                        //如果查出的数据为空则不拼接
+                    if (res.length == 0) {
+                        return;
+                    }
+                    var cateselect = '<div class="col-sm-2" ><input type="hidden" name="cateName"/><select class="form-control" name="selectTe" onchange="initcategory(this.value,this);">' +
+                        '<option value="-1">---请选择---</option>';
+                    for (var i = 0; i < res.length; i++) {
+                        cateselect += '<option value="' + res[i].id + '">' + res[i].cateName + '</option>';
+                    }
+                    cateselect += '</select></div>';
+                    $("[name='cateDiv']").last().append(cateselect);
+                }
+            }
+        })
+    }
+
+</script>
+</body>
+</html>

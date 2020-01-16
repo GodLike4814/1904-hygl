@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>全部计划议题</title>
+
+    <link rel="stylesheet" href="../../commons/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../commons/datatable/DataTables-1.10.18/css/dataTables.bootstrap.min.css">
+
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script src="../../commons/My97DatePicker/WdatePicker.js"></script>
+    <script src="../../commons/datatable/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
+    <script src="../../commons/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                全部计划议题
+            </div>
+            <div class="panel-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">议题名称</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="issueName">
+                        </div>
+                        <label class="col-sm-2 control-label">时间安排</label>
+                        <div class="input-group col-sm-3">
+                            <input type="text" class="form-control" id="startTime" name="startTime"
+                                   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})">
+                            <div class="input-group-addon">
+                                <span>至</span>
+                            </div>
+                            <input type="text" class="form-control" id="endTime" name="endTime"
+                                   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})">
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">状态</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" id="status" name="status">
+                                <option value="">---请选择---</option>
+                                <option value="3">---待审核---</option>
+                                <option value="1">---审核通过---</option>
+                                <option value="2">---退回---</option>
+                            </select>
+                        </div>
+                        <label class="col-sm-2 control-label">上报单位</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" id="dutyUnit" name="dutyUnit">
+                                <option value="">---请选择---</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button type="button" class="btn btn-primary" onclick="search();"><span
+                                class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+
+            </div>
+            <div class="panel-body">
+                <table id="allPlanRegisterTable" class="table table-striped table-bordered" style="width:100%">
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function(){
+        initTable();
+    });
+
+    function search(){
+        var param = {};
+        param.issueName = $("#issueName").val();
+        param.dutyUnit = $("#dutyUnit").val();
+        param.status = $("#status").val();
+        param.startTime = $("#startTime").val();
+        param.endTime = $("#endTime").val();
+        // 给datatable的ajax属性中的data赋值
+        WbPlanRegisterTable.settings()[0].ajax.data=param;
+        //发送请求并传递参数
+        WbPlanRegisterTable.ajax.reload();
+    }
+
+    var allPlanRegisterTable;
+    function initTable(){
+        allPlanRegisterTable = $("#allPlanRegisterTable").DataTable({
+            "autoWidth": true, //自适应宽度
+            "info": true,//展示表格左下角信息,分页栏
+            "lengthChange": true,//是否改变每页展示的条数a
+            "searching": false,
+            "lengthMenu": [4, 5, 10],
+            "ordering": false,//是否允许排序
+            "paging": true,//是否允许开启本地分页
+            "processing": true,//是否先处理状态
+            "serverSide": true,//true是服务器模式，false是客户端模式
+            //如何和后台进行交互并展示
+            "ajax": {
+                url: "http://localhost:8055/planRegister/findAllPlanRegister",
+                type: "post",
+                "dataSrc": function (result) {
+                    return result.data;
+                }
+            },
+            //数据如何展示到表格中
+            "columns": [
+                {"data": "id", "title": "序号"},
+                {"data": "issueName", "title": "议题名称"},
+                {"data": "nsMeeting", "title": "拟上会议",render: function (data, type, row, meta) {
+                    var arrList = null;
+                        $.ajax({
+                            type: "post",
+                            async:false,
+                            url: "http://localhost:8055/planRegister/findNsMeeting",
+                            success: function (result) {
+                                if (result.code == 200) {
+                                   arrList=result.data;
+                                }
+                            }
+                        });
+                        for (var i = 0; i < arrList.length; i++) {
+                            if (arrList[i].id == data ) {
+                                return  arrList[i].meetName;
+                            }
+                        }
+                    }
+                    },
+                {"data": "dutyUnit", "title": "责任单位",render: function (data, type, row, meta) {
+                        if (data == 1) {
+                            return '奥运办事处';
+                        } else if(data == 2){
+                            return "西城区政府";
+                        }else if(data == 3){
+                            return "东城区政府";
+                        }else if(data == 4){
+                            return "朝阳区政府";
+                        }else if(data == 5){
+                            return "海淀区政府";
+                        }else if(data == 6){
+                            return "昌平区政府";
+                        }else if(data == 7){
+                            return "顺义区政府";
+                        }
+                    }
+                },
+                {"data": "timePlan", "title": "时间安排"},
+                {"data": "status", "title": "状态",render: function (data, type, row, meta) {
+                        if (data == 3) {
+                            return '待审核';
+                        } else if(data == 1){
+                            return "审核通过";
+                        }else if(data == 2){
+                            return "退回";
+                        }
+                    }
+
+                },
+                {"data": "", "title": "操作",
+                    render: function (data, type, row, meta) {
+                        return '<a href="">修改</a>&nbsp;&nbsp;&nbsp;<a href="">删除</a>&nbsp;&nbsp;&nbsp;<a href="">详情</a>';
+                    }
+                }
+            ],
+            "language": {
+                "url": "../../commons/datatable/Chinese.json"
+            }
+
+        })
+    }
+</script>
+</body>
+</html>

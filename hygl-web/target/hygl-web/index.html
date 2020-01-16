@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>会议管理</title>
+
+    <link type="text/css" href="css/style.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="commons/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="zTree/css/zTreeStyle/zTreeStyle.css">
+    <link href="commons/datatable/DataTables-1.10.18/css/dataTables.bootstrap.min.css" rel="stylesheet"/>
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="commons/bootstrap/js/bootstrap.min.js"></script>
+    <script src="zTree/js/jquery.ztree.core.min.js"></script>
+    <script type="text/javascript" src="commons/datatable/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="commons/datatable/DataTables-1.10.18/js/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" src="commons/dateFormat.js"></script>
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+
+        <ul class="nav navbar-nav">
+            <li class="navbar-brand">欢迎${login.loginName},今天您是第${login.loginCount}次登录,上次登录时间为 <fmt:formatDate type="both" value="${login.oldLoginTime}"/></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a class="navbar-brand" href="<%=request.getContextPath()%>/loginout.jhtml">安全退出</a>
+            </li>
+            <li>
+                <a class="navbar-brand" href="<%=request.getContextPath()%>/log.jhtml">查看日志</a>
+            </li>
+            <li>
+                <a class="navbar-brand" href="<%=request.getContextPath()%>/toBrand.jhtml">查看品牌</a>
+            </li>
+            <li>
+                <a class="navbar-brand" href="<%=request.getContextPath()%>/toGoods.jhtml">查看商品</a>
+            </li>
+            <li>
+                <a class="navbar-brand" href="<%=request.getContextPath()%>/toMember.jhtml">查看会员</a>
+            </li>
+        </ul>
+    </div>
+
+</nav>
+
+
+<div>
+
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    会议管理系统
+                    <button type="button" class="btn btn-primary" onclick="deptAdd();">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>增加
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="deptUpdate();">
+                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="deleteDept();">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>删除
+                    </button>
+                </div>
+                <div class="panel-body">
+                    <ul id="deptTree" class="ztree"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="panel panel-info">
+                <div>
+                    <img src="\images\shouye\u3.png" width="100%">
+                </div>
+
+                <div class="panel-body">
+                    <iframe name="zhu" scrolling="no" frameborder="0" width="100%" height="800">
+
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div  class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-8"></div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<!-- 新增节点 -->
+<div id="deptAddDiv" style="display: none">
+    <form class="form-horizontal" id="adddept">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">上级部门</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="fatherName" name="fatherName"
+                       readonly="readonly"> <input type="hidden"
+                                                   class="form-control" id="fatherId">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">部门名称</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="deptName" name="deptName">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">创建时间</label>
+            <div class="col-sm-9 input-append date form_datetime">
+                <input type="text" class="form-control" id="createTime" name="createTime">
+            </div>
+            <div>
+                <span class="glyphicon glyphicon-calendar"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">部门描述</label>
+            <div class="col-sm-10">
+                <textarea rows="5" cols="60" id="describe" name="describe"></textarea>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- 修改节点 -->
+<div id="deptEditDiv" style="display: none">
+    <form class="form-horizontal" id="editdept">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">部门名称</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="edit_deptName" name="edit_deptName">
+                <input type="hidden" class="form-control" id="edit_id">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">部门描述</label>
+            <div class="col-sm-10">
+                <textarea rows="5" cols="60" id="edit_describe" name="edit_describe"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">创建时间</label>
+            <div class="col-sm-9 input-append date form_datetime">
+                <input type="text" class="form-control" id="edit_createTime" name="edit_createTime">
+            </div>
+            <div>
+                <span class="glyphicon glyphicon-calendar"></span>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<script type="text/javascript">
+    $(function () {
+        //部门树
+        initZtree();
+    })
+
+    //删除部门节点
+    function deleteDept(){
+        //先获取选中的节点
+        var treeObj = $.fn.zTree.getZTreeObj("deptTree");
+        var nodes = treeObj.getSelectedNodes();
+        //判断选中节点的个数
+        if (nodes.length == 0) {
+            bootbox.alert({
+                message: "<span class='glyphicon glyphicon-exclamation-sign'>请选择节点</span>",
+                size: 'small'
+            });
+        }else{
+            var ids = [];
+            var nodesArr = [];
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                var nodesList = treeObj.transformToArray(node);
+                for (var j = 0; j < nodesList.length; j++) {
+                    ids.push(nodesList[j].id);
+                    nodesArr.push(nodesList[j]);
+                }
+            };
+            bootbox.dialog({
+                title: '删除节点',
+                message: "确定要删除该部门及以下部门吗?",
+                size:'small',
+                buttons: {
+                    confirm: {
+                        label: '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>确定',
+                        className: 'btn btn-info',
+                        callback :function(){	//回调函数
+                            $.ajax({
+                                type:"post",
+                                url:"<%=request.getContextPath()%>/dept/deleteBatch.jhtml",
+                                data:{"ids":ids},
+                                success:function(result){
+                                    if (result.code == 200) {
+                                        for (var i = 0; i < nodesArr.length; i++) {
+                                            treeObj.removeNode(nodesArr[i]);
+                                        }
+                                        bootbox.alert({
+                                            message: "<span class='glyphicon glyphicon-exclamation-sign'>删除节点成功！</span>",
+                                            size: 'small'
+                                        });
+                                    }
+                                    search();
+                                }
+                            })
+                        }
+                    },
+                    cancel: {
+                        label: '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>取消',
+                        className: 'btn btn-danger'
+                    }
+                }
+            });
+        }
+    }
+
+    //修改部门节点
+    function deptUpdate(){
+        var treeObj = $.fn.zTree.getZTreeObj("deptTree");
+        var nodes = treeObj.getSelectedNodes();
+        if(nodes.length ==1){
+            $("#edit_deptName").val(nodes[0].name);
+            var edit_id = nodes[0].id;
+            $("#edit_id").val(edit_id);
+            $.ajax({
+                type:"post",
+                async:false,
+                url:"<%=request.getContextPath()%>/dept/queryDeptById.jhtml",
+                data:{"id":nodes[0].id},
+                success:function(result){
+                    if (result.code ==200) {
+                        $("#edit_createTime").val(result.data.createTime);
+                        $("#edit_describe").val(result.data.describeDept);
+                    }
+                }
+            });
+            var deptEditDlg = bootbox.dialog({
+                title: '修改节点',
+                message: $("#deptEditDiv form").clone(),
+                size:'large',
+                buttons: {
+                    confirm: {
+                        label: '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>确定',
+                        className: 'btn btn-info',
+                        callback :function(){	//回调函数
+                            var param = {};
+                            param.deptName = $("#edit_deptName",deptEditDlg).val();
+                            param.id = $("#edit_id").val();
+                            param.createTime = $("#edit_createTime",deptEditDlg).val();
+                            param.describeDept = $("#edit_describe",deptEditDlg).val();
+                            //开启验证
+                            $("#editdept",deptEditDlg).data('bootstrapValidator').validate();
+                            //是否通过校验
+                            if(!$("#editdept",deptEditDlg).data('bootstrapValidator').isValid()){
+                                bootbox.alert({
+                                    message: "<span class='glyphicon glyphicon-exclamation-sign'>请完成表单！！！</span>",
+                                    size: 'small'
+                                });
+                            } else {
+                                //通过校验，可进行提交等操作
+                                $.ajax({
+                                    type:"post",
+                                    url:"<%=request.getContextPath()%>/dept/update.jhtml",
+                                    data:param,
+                                    success:function(result){
+                                        if(result.code == 200){
+                                            var treeObj = $.fn.zTree.getZTreeObj("deptTree");
+                                            nodes[0].name = result.data.deptName;
+                                            treeObj.updateNode(nodes[0]);
+                                            bootbox.alert({
+                                                message: "<span class='glyphicon glyphicon-exclamation-sign'>修改节点成功！</span>",
+                                                size: 'small'
+                                            });
+                                        }else{
+                                            bootbox.alert({
+                                                message: "<span class='glyphicon glyphicon-exclamation-sign'>修改失败！</span>",
+                                                size: 'small'
+                                            });
+                                        }
+                                    }
+                                })
+                            }
+                        }
+                    },
+                    cancel: {
+                        label: '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>取消',
+                        className: 'btn btn-danger'
+                    }
+                }
+            });
+            create($("#edit_createTime",deptEditDlg));
+        }else if(nodes.length == 0){
+            bootbox.alert({
+                message: "<span class='glyphicon glyphicon-exclamation-sign'>请选择一个节点</span>",
+                size: 'small'
+            });
+        }else{
+            bootbox.alert({
+                message: "<span class='glyphicon glyphicon-exclamation-sign'>只能选择一个节点</span>",
+                size: 'small'
+            });
+        }
+
+    }
+
+    //新增节点
+    function deptAdd(){
+        var treeObj = $.fn.zTree.getZTreeObj("deptTree");
+        var nodes = treeObj.getSelectedNodes();
+        if(nodes.length ==1){
+            $("#fatherName").val(nodes[0].name);
+            $("#fatherId").val(nodes[0].id);
+            var deptAddDlg = bootbox.dialog({
+                title: '新增节点',
+                message: $("#deptAddDiv form").clone(),
+                size:'large',
+                buttons: {
+                    confirm: {
+                        label: '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>确定',
+                        className: 'btn btn-info',
+                        callback :function(){	//回调函数
+                            var v_name = $("#deptName",deptAddDlg).val();
+                            var param = {};
+                            param.deptName = v_name;
+                            param.fatherId = $("#fatherId",deptAddDlg).val();
+                            param.createTime = $("#createTime",deptAddDlg).val();
+                            param.describeDept = $("#describe",deptAddDlg).val();
+                            //开启验证
+                            $("#adddept",deptAddDlg).data('bootstrapValidator').validate();
+                            //是否通过校验
+                            if(! $("#adddept",deptAddDlg).data('bootstrapValidator').isValid()){
+                                bootbox.alert({
+                                    message: "<span class='glyphicon glyphicon-exclamation-sign'>请完成表单！！！</span>",
+                                    size: 'small'
+                                });
+                            } else {
+                                //通过校验，可进行提交等操作
+                                $.ajax({
+                                    type:"post",
+                                    url:"<%=request.getContextPath()%>/dept/add.jhtml",
+                                    data:param,
+                                    success:function(result){
+                                        if(result.code == 200){
+                                            var treeObj = $.fn.zTree.getZTreeObj("deptTree");
+                                            var newNode = {};
+                                            newNode.name = result.data.deptName;
+                                            newNode.id = result.data.id;
+                                            newNode.pId = result.data.fatherId;
+                                            newNode.createTime = result.data.createTime;
+                                            newNode.describeDept = result.data.describeDept;
+                                            newNode = treeObj.addNodes(nodes[0], newNode);
+                                            bootbox.alert({
+                                                message: "<span class='glyphicon glyphicon-exclamation-sign'>新增节点成功！</span>",
+                                                size: 'small'
+                                            });
+                                        }else{
+                                            bootbox.alert({
+                                                message: "<span class='glyphicon glyphicon-exclamation-sign'>增加失败！</span>",
+                                                size: 'small'
+                                            });
+                                        }
+                                    }
+                                })
+                            }
+                        }
+                    },
+                    cancel: {
+                        label: '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>取消',
+                        className: 'btn btn-danger'
+                    }
+                }
+            });
+            create($("#createTime",deptAddDlg));
+        }else if(nodes.length == 0){
+            bootbox.alert({
+                message: "<span class='glyphicon glyphicon-exclamation-sign'>请选择一个节点</span>",
+                size: 'small'
+            });
+        }else{
+            bootbox.alert({
+                message: "<span class='glyphicon glyphicon-exclamation-sign'>只能选择一个节点</span>",
+                size: 'small'
+            });
+        }
+
+    }
+
+    //点击节点树
+    function deptOnClick(event, treeId, treeNode){
+        var treeObj = $.fn.zTree.getZTreeObj("deptTree");
+        var nodes = treeObj.getSelectedNodes();
+        var ids = [];
+        var nodesList = treeObj.transformToArray(nodes);
+        for (var j = 0; j < nodesList.length; j++) {
+            ids.push(nodesList[j].id);
+        }
+        $("#idList").val(ids.join(","));
+        //search();
+    }
+
+    function initZtree(){
+        $.ajax({
+            type:"get",
+            url:"http://localhost:8055/menu",
+            success : function(result) {
+                if (result.code == 200) {
+                    var setting = {
+                        callback: {
+                            onClick: deptOnClick
+                        },
+                        data : {
+                            simpleData : {
+                                enable : true
+                            }
+                        }
+                    };
+                    $.fn.zTree.init($("#deptTree"), setting, result.data);
+                    //默认展开全部节点expandAll
+                    $.fn.zTree.init($("#deptTree"), setting, result.data).expandAll(true);
+                }
+            }
+        })
+    }
+</script>
+
+</body>
+</html>
